@@ -1,0 +1,21 @@
+services:
+    laravel-service:
+        container_name: laravel-container
+        build:
+            context: .
+            dockerfile: docker/laravel/Dockerfile
+        working_dir: '/var/www/html'
+        volumes:
+            - ./laravel-app:/var/www/html
+        ports:
+            - "8000:8000"
+    vue1-service:
+        container_name: vue1-container
+        build:
+            context: .
+            dockerfile: docker/vue1/Dockerfile
+        working_dir: /app
+        volumes:
+            - ./vue1-app:/app
+        ports:
+            - "5173:5173"
