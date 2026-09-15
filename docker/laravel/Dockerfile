@@ -13,10 +13,19 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring bcmath gd zip pcntl \
+    && docker-php-ext-install pdo_mysql mbstring bcmath exif pcntl gd zip \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.9 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-CMD ["sleep", "infinity"]
+COPY docker/laravel/*.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
 
+COPY laravel-app /var/www/html
+
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader || true
+
+EXPOSE 8000
+
+CMD ["bash", "/usr/local/bin/entrypoint.development.sh"]

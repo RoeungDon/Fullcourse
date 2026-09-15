@@ -8,4 +8,18 @@ Desktop.ini
 .idea/
 *.suo
 *.swp
+*~
 
+# Dependencies & build artifacts (also ignored inside apps)
+**/node_modules/
+**/vendor/
+**/dist/
+
+# Env / secrets
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Logs & caches
+*.log
+.phpunit.result.cache

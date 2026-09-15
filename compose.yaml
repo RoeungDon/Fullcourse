@@ -4,18 +4,81 @@ services:
         build:
             context: .
             dockerfile: docker/laravel/Dockerfile
-        working_dir: '/var/www/html'
+        working_dir: /var/www/html
         volumes:
             - ./laravel-app:/var/www/html
+            - ./docker/laravel/entrypoint.development.sh:/usr/local/bin/entrypoint.development.sh
         ports:
             - "8000:8000"
-    vue1-service:
-        container_name: vue1-container
+        depends_on:
+            mysql-service:
+                condition: service_healthy
+        environment:
+            APP_ENV: local
+            APP_DEBUG: "true"
+            DB_CONNECTION: mysql
+            DB_HOST: mysql-service
+            DB_PORT: "3306"
+            DB_DATABASE: my_database_system
+            DB_USERNAME: my_database_user
+            DB_PASSWORD: my_database_password
+        command: ["bash", "/usr/local/bin/entrypoint.development.sh"]
+        restart: unless-stopped
+
+    vuejs-service:
+        container_name: vuejs-container
         build:
             context: .
-            dockerfile: docker/vue1/Dockerfile
+            dockerfile: docker/vuejs/Dockerfile
         working_dir: /app
         volumes:
-            - ./vue1-app:/app
+            - ./vuejs-app:/app
+            - ./docker/vuejs/entrypoint.development.sh:/usr/local/bin/entrypoint.development.sh
+            - vuejs_node_modules:/app/node_modules
         ports:
             - "5173:5173"
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+        command: ["sh", "/usr/local/bin/entrypoint.development.sh"]
+        restart: unless-stopped
+
+    mysql-service:
+        image: mysql:8.0
+        container_name: mysql-container
+        environment:
+            MYSQL_DATABASE: my_database_system
+            MYSQL_USER: my_database_user
+            MYSQL_PASSWORD: my_database_password
+            MYSQL_ROOT_PASSWORD: root
+            TZ: UTC
+        ports:
+            # Host 3307 -> container 3306 (3306 often already used by local MySQL)
+            - "3307:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+            start_period: 25s
+        restart: unless-stopped
+
+    phpmyadmin:
+        image: phpmyadmin:5.2.2
+        container_name: phpmyadmin-container
+        depends_on:
+            mysql-service:
+                condition: service_healthy
+        environment:
+            UPLOAD_LIMIT: 50M
+            PMA_HOST: mysql-service
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 1
+        ports:
+            - "9000:80"
+        restart: unless-stopped
+
+volumes:
+    mysql_data:
+    vuejs_node_modules:
