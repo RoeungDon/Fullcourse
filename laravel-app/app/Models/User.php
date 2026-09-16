@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\ResetPasswordNotification;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -35,8 +36,13 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Send the email verification notification (custom callback_url support).
      */
-    public function sendEmailVerificationNotification(?string $callbackUrl = null): void
+        public function sendEmailVerificationNotification(?string $callbackUrl = null): void
     {
         $this->notify(new EmailVerificationNotification($callbackUrl));
+    }
+
+    public function sendPasswordResetNotification($token, $callback_url = null)
+    {
+        $this->notify(new ResetPasswordNotification($token, $callback_url));
     }
 }

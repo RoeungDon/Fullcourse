@@ -12,6 +12,9 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\User\SendResetPasswordEmailRequest;
+use App\Http\Requests\User\SetNewPasswordRequest;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -128,4 +131,51 @@ class AuthController extends Controller
             'user' => new UserResource($user),
         ], 200);
     }
+    function sendResetPasswordEmail(SendResetPasswordEmailRequest $request)
+{
+    $status = Password::sendResetLink(
+        ['email' => $request->email],
+        function ($user, $token) use ($request) {
+            $user->sendPasswordResetNotification($token, $request->callback_url);
+        }
+    );
+
+    if ($status === Password::RESET_LINK_SENT) {
+        return response([
+            'message' => 'Password reset link sent to your email'
+        ], 200);
+    }
+
+    return response([
+        'message' => 'Password reset link sent to your email'
+    ], 200);
+    }
+    function setNewPassword(SetNewPasswordRequest $request)
+{
+    $status = Password::reset(
+        [
+            'token' => $request->token,
+            'email' => $request->email,
+            'password' => $request->password,
+            'password_confirmation' => $request->password_confirmation,
+        ],
+        function ($user, $password) {
+            $user->password = $password;
+            $user->save();
+            $user->tokens()->delete();
+        }
+    );
+
+    if ($status !== Password::PASSWORD_RESET) {
+        throw ValidationException::withMessages([
+            'password' => [__($status)],
+        ]);
+    }
+
+    return response([
+        'message' => 'Password has been reset successfully.'
+    ], 200);
+    }
+
+
 }

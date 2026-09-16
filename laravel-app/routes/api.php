@@ -12,6 +12,9 @@ Route::post('/signin', [AuthController::class, 'signin']);
 // Resend verification email (public)
 Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail']);
 
+Route::post('/send/reset-password-email', [AuthController::class, 'sendResetPasswordEmail']);
+Route::post('/set/new-password', [AuthController::class, 'setNewPassword'])->name('set.new-password');
+
 // Temporary signed email verification link (named verify.email for URL::temporarySignedRoute)
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed')
