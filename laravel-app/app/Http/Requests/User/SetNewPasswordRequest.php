@@ -12,7 +12,7 @@ class SetNewPasswordRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true; // public link from email, so no auth check needed
     }
 
     /**

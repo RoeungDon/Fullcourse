@@ -12,7 +12,7 @@ class SendResetPasswordEmailRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true; // always allow this request, as it is for sending reset password email 
     }
 
     /**

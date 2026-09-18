@@ -87,7 +87,7 @@
                 </form>
 
                 <p class="mt-3 mb-1">
-                    <RouterLink to="/signin" class="text-center">
+                    <RouterLink :to="{ name: 'auth.signin' }" class="text-center">
                         I already have a membership
                     </RouterLink>
                 </p>

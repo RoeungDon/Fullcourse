@@ -64,7 +64,9 @@
                 </div>
 
                 <p class="mb-1">
-                    <a href="#">I forgot my password</a>
+                    <RouterLink :to="{ name: 'auth.reset-password' }">
+                         I forgot my password
+                    </RouterLink>
                 </p>
                 <p class="mb-0">
                     <RouterLink to="/signup" class="text-center">

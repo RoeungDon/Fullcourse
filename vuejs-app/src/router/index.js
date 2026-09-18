@@ -1,3 +1,5 @@
+import ResetPassword from "@/components/auth/ResetPassword.vue";
+import SetNewPassword from "@/components/auth/SetNewPassword.vue";
 import Signin from "@/components/auth/Signin.vue";
 import Signout from "@/components/auth/Signout.vue";
 import Signup from "@/components/auth/Signup.vue";
@@ -10,36 +12,50 @@ const router = createRouter({
     routes: [
         {
             path: "/",
-            redirect: { name: "auth.signin" },
-        },
-        {
-            path: "/signin",
             name: "auth.signin",
             component: Signin,
+            meta: { guarded: false },
         },
         {
             path: "/signout",
             name: "auth.signout",
             component: Signout,
+            // This route has no guarded meta because it use for both authenticated and unauthenticated users.
+            // The authentication state will be handled in the Signout component.
         },
         {
             path: "/signup",
             name: "auth.signup",
             component: Signup,
+            meta: { guarded: false },
         },
         {
             path: "/verify/email",
             name: "auth.verify.email",
             component: VerifyEmail,
+            meta: { guarded: false },
+        },
+        {
+            path: "/reset-password",
+            name: "auth.reset-password",
+            component: ResetPassword,
+            meta: { guarded: false },
+        },
+        {
+            path: "/set-new-password",
+            name: "auth.set-new-password",
+            component: SetNewPassword,
+            meta: { guarded: false },
         },
         {
             path: "/dashboard",
             name: "dashboard",
             component: Dashboard,
+            meta: { guarded: true },
         },
         {
             path: "/:pathMatch(.*)*",
-            redirect: { name: "dashboard" },
+            redirect: "/dashboard",
         },
     ],
 });
