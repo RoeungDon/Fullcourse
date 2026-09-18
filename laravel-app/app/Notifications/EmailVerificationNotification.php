@@ -4,11 +4,12 @@ namespace App\Notifications;
 
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
 
-class EmailVerificationNotification extends Notification
+class EmailVerificationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -66,10 +67,10 @@ class EmailVerificationNotification extends Notification
 
         return (new MailMessage)
             ->subject('Verify Email Address')
-            ->line('Please click the button below to verify your email address.')
-            ->action('Verify Email Address', $actionUrl)
-            ->line('This verification link will expire in 5 minutes.')
-            ->line('If you did not create an account, no further action is required.');
+            ->line('Click the button below to verify your email address.')
+            ->action('Verify Email', $actionUrl)
+            ->line('If you did not create an account, no further action is required.')
+            ->line('This verification link will expire in 5 minutes.');
     }
 
     /**
