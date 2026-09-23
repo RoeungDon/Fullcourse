@@ -1,152 +1,164 @@
 <template>
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b>Admin</b>LTE</a>
-        </div>
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-
-                <form @submit.prevent="signIn">
-                    <div class="input-group mb-3">
-                        <input
-                            type="email"
-                            class="form-control"
-                            placeholder="Email"
-                            v-model="form.email"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input
-                            type="password"
-                            class="form-control"
-                            placeholder="Password"
-                            v-model="form.password"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember" />
-                                <label for="remember">Remember Me</label>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <button
-                                type="submit"
-                                class="btn btn-primary btn-block"
-                                :disabled="loading"
-                            >
-                                {{ loading ? 'Signing in...' : 'Sign In' }}
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                <div class="social-auth-links text-center mb-3">
-                    <p>- OR -</p>
-                    <a href="#" class="btn btn-block btn-primary">
-                        <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-                    </a>
-                    <a href="#" class="btn btn-block btn-danger">
-                        <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-                    </a>
+    <div class="login-page">
+        <div class="login-box">
+            <div class="card card-outline card-primary">
+                <div class="card-header text-center">
+                    <router-link to="/" class="h1"><b>Admin</b>LTE</router-link>
                 </div>
-
-                <p class="mb-1">
-                    <RouterLink :to="{ name: 'auth.reset-password' }">
-                         I forgot my password
-                    </RouterLink>
-                </p>
-                <p class="mb-0">
-                    <RouterLink to="/signup" class="text-center">
-                        Register a new membership
-                    </RouterLink>
-                </p>
+                <div class="card-body">
+                    <p class="login-box-msg">Sign in to start your session</p>
+                    <form @submit.prevent="signIn">
+                        <div class="input-group mb-3">
+                            <input
+                                type="email"
+                                v-model="user.email"
+                                class="form-control"
+                                placeholder="Email"
+                                :class="{ 'is-invalid': !!userError.email }"
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-envelope"></span>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ userError.email }}
+                            </div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <input
+                                type="password"
+                                v-model="user.password"
+                                class="form-control"
+                                placeholder="Password"
+                                autocomplete
+                                :class="{ 'is-invalid': !!userError.password }"
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ userError.password }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8"></div>
+                            <div class="col-4">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-block"
+                                >
+                                    Sign In
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="social-auth-links text-center mt-3 mb-3">
+                        <p>- OR -</p>
+                        <button
+                            @click="googleSignIn()"
+                            class="btn btn-block btn-danger"
+                        >
+                            <i class="fab fa-google mr-2"></i> Sign in with
+                            Google
+                        </button>
+                    </div>
+                    <p class="mb-1">
+                        <router-link
+                            :to="{ name: 'auth.signup' }"
+                            class="text-center"
+                            >Register a new membership</router-link
+                        >
+                    </p>
+                    <p class="mb-0">
+                        <router-link
+                            :to="{ name: 'auth.reset-password' }"
+                            class="text-center"
+                            >Forgot your password?</router-link
+                        >
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import Swal from 'sweetalert2'
-import { signin } from '@/functions/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { useRouter } from "vue-router";
+import { reactive } from "vue";
+import { apiSignIn } from "@/functions/api/auth";
+import { LoadingModal, MessageModal, CloseModal } from "@/functions/swal";
+import { useUserStore } from "@/stores/user";
+import { apiGoogleOAuthRedirect } from "@/functions/api/google-oauth";
 
-const router = useRouter()
-const auth = useAuthStore()
+const router = useRouter();
+const userStore = useUserStore();
 
-const loading = ref(false)
+const user = reactive({
+    email: "",
+    password: "",
+});
 
-const form = reactive({
-    email: '',
-    password: '',
-})
+const userError = reactive({
+    email: "",
+    password: "",
+});
+
+const defaultUser = JSON.parse(JSON.stringify(user));
+const defaultUserError = JSON.parse(JSON.stringify(userError));
+
+function resetAllState() {
+    Object.assign(user, defaultUser);
+    Object.assign(userError, defaultUserError);
+}
 
 async function signIn() {
-    loading.value = true
-
     try {
-        const { data } = await signin({
-            email: form.email,
-            password: form.password,
-        })
-
-        auth.setAuth({
-            user: data.user,
-            token: data.token,
-        })
-
-        await Swal.fire({
-            icon: 'success',
-            title: 'Signed in',
-            text: data.message || 'Welcome back.',
-            timer: 1500,
-            showConfirmButton: false,
-        })
-
-        router.push({ name: 'dashboard' })
+        LoadingModal("Signing In...");
+        const response = await apiSignIn(user);
+        const { data } = response;
+        userStore.setState(data.user);
+        userStore.setSanctumToken(data.token);
+        resetAllState();
+        router.replace({ name: "dashboard" });
+        return CloseModal();
     } catch (error) {
-        const status = error.response?.status
-        const payload = error.response?.data
-
-        let message = 'Could not sign in. Please try again.'
-
-        if (status === 422 && payload?.errors) {
-            message = Object.values(payload.errors).flat().join('\n')
-        } else if (payload?.message) {
-            message = payload.message
+        const { response } = error;
+        if (!response) {
+            return MessageModal({
+                icon: "error",
+                title: "Error",
+                text: error.message,
+            });
         }
-
-        await Swal.fire({
-            icon: 'error',
-            title: 'Sign in failed',
-            text: message,
-        })
-    } finally {
-        loading.value = false
+        const { status, data } = response;
+        if (status === 422) {
+            Object.keys(userError).forEach((key) => {
+                userError[key] = data.errors[key] ? data.errors[key][0] : "";
+            });
+            return CloseModal();
+        }
+        return MessageModal({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+        });
     }
 }
 
-onMounted(() => {
-    document.body.classList.remove('sidebar-mini', 'layout-fixed')
-    document.body.classList.add('hold-transition', 'login-page')
-})
-
-onUnmounted(() => {
-    document.body.classList.remove('hold-transition', 'login-page')
-    document.body.classList.add('sidebar-mini', 'layout-fixed')
-})
+const googleSignIn = async () => {
+    try {
+        LoadingModal();
+        const response = await apiGoogleOAuthRedirect();
+        window.location.href = response.data.redirect_url;
+    } catch (error) {
+        return MessageModal({
+            icon: "error",
+            title: "Error",
+            text: error.response?.data?.message || error.message,
+        });
+    }
+};
 </script>

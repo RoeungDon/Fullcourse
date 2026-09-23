@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Socialite;
+use Laravel\Socialite\Facades\Socialite;
 
 class GoogleOAuthController extends Controller
 {
@@ -26,6 +26,7 @@ class GoogleOAuthController extends Controller
     function googleOAuthCallback(Request $request)
     {
         $callback_url = base64_decode($request->query('state', ''));
+
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
@@ -43,7 +44,11 @@ class GoogleOAuthController extends Controller
             $user->markEmailAsVerified();
         }
 
-        $token = $user->createToken('auth_token', ['exchange-new-token'], now()->addMinute())->plainTextToken;
+        $token = $user->createToken(
+            'auth_token',
+            ['exchange-new-token'],
+            now()->addMinute()
+        )->plainTextToken;
 
         return redirect($callback_url . '?token=' . urlencode($token));
     }
@@ -53,7 +58,9 @@ class GoogleOAuthController extends Controller
         $user = $request->user();
 
         if (!$user->currentAccessToken()->can('exchange-new-token')) {
-            return response(['message' => 'Invalid token.'], 403);
+            return response([
+                'message' => 'Invalid token ability.',
+            ], 403);
         }
 
         $user->currentAccessToken()->delete();
@@ -61,9 +68,9 @@ class GoogleOAuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response([
-            'message' => 'User signed in.',
+            'message' => 'Token exchanged successfully.',
             'user' => new UserResource($user),
-            'token' => $token
+            'token' => $token,
         ], 200);
     }
 }

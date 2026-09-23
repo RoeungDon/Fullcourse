@@ -1,111 +1,123 @@
 <template>
-    <div class="register-box">
-        <div class="register-logo">
-            <a href="#"><b>Admin</b>LTE</a>
-        </div>
-        <div class="card">
-            <div class="card-body register-card-body">
-                <p class="login-box-msg">Register a new membership</p>
-
-                <form @submit.prevent="signUp">
-                    <div class="input-group mb-3">
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Full name"
-                            v-model="form.name"
-                            :class="{ 'is-invalid': !!formError.name }"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-user"></span>
+    <div class="login-page">
+        <div class="login-box">
+            <div class="card card-outline card-primary">
+                <div class="card-header text-center">
+                    <router-link to="/" class="h1"><b>Admin</b>LTE</router-link>
+                </div>
+                <div class="card-body">
+                    <p class="login-box-msg">Sign up for a new membership</p>
+                    <form @submit.prevent="signUp">
+                        <div class="input-group mb-3">
+                            <input
+                                type="text"
+                                v-model="user.name"
+                                class="form-control"
+                                placeholder="Name"
+                                :class="{ 'is-invalid': !!userError.name }"
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-user"></span>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ userError.name }}
                             </div>
                         </div>
-                        <div class="invalid-feedback">{{ formError.name }}</div>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <input
-                            type="email"
-                            class="form-control"
-                            placeholder="Email"
-                            v-model="form.email"
-                            :class="{ 'is-invalid': !!formError.email }"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
+                        <div class="input-group mb-3">
+                            <input
+                                type="email"
+                                v-model="user.email"
+                                class="form-control"
+                                placeholder="Email"
+                                :class="{ 'is-invalid': !!userError.email }"
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-envelope"></span>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ userError.email }}
                             </div>
                         </div>
-                        <div class="invalid-feedback">{{ formError.email }}</div>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <input
-                            type="password"
-                            class="form-control"
-                            placeholder="Password"
-                            v-model="form.password"
-                            autocomplete="new-password"
-                            :class="{ 'is-invalid': !!formError.password }"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                        <div class="input-group mb-3">
+                            <input
+                                type="password"
+                                v-model="user.password"
+                                class="form-control"
+                                placeholder="Password"
+                                autocomplete
+                                :class="{ 'is-invalid': !!userError.password }"
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ userError.password }}
                             </div>
                         </div>
-                        <div class="invalid-feedback">{{ formError.password }}</div>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <input
-                            type="password"
-                            class="form-control"
-                            placeholder="Retype password"
-                            v-model="form.password_confirmation"
-                            autocomplete="new-password"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                        <div class="input-group mb-3">
+                            <input
+                                type="password"
+                                v-model="user.password_confirmation"
+                                class="form-control"
+                                placeholder="Confirm Password"
+                                autocomplete
+                            />
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-8"></div>
-                        <div class="col-4">
-                            <button
-                                type="submit"
-                                class="btn btn-primary btn-block"
-                                :disabled="loading"
-                            >
-                                {{ loading ? 'Registering...' : 'Register' }}
-                            </button>
+                        <div class="row">
+                            <div class="col-8"></div>
+                            <div class="col-4">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-block"
+                                >
+                                    Sign up
+                                </button>
+                            </div>
                         </div>
+                    </form>
+                    <div class="social-auth-links text-center mt-3 mb-3">
+                        <p>- OR -</p>
+                        <button
+                            @click="googleSignUp()"
+                            class="btn btn-block btn-danger"
+                        >
+                            <i class="fab fa-google mr-2"></i> Sign up with
+                            Google
+                        </button>
                     </div>
-                </form>
-
-                <p class="mt-3 mb-1">
-                    <RouterLink :to="{ name: 'auth.signin' }" class="text-center">
-                        I already have a membership
-                    </RouterLink>
-                </p>
-
-                <div v-if="signedUpEmail" class="mt-3">
-                    <hr />
-                    <p>
-                        Signed up with <strong>{{ signedUpEmail }}</strong>
+                    <p class="mb-1">
+                        <router-link
+                            :to="{ name: 'auth.signin' }"
+                            class="text-center"
+                            >I already have an account</router-link
+                        >
                     </p>
-                    <p class="mb-3">Didn't receive the verification email?</p>
-                    <button
-                        type="button"
-                        class="btn btn-secondary btn-block"
-                        :disabled="resending"
-                        @click="resendVerificationEmail"
-                    >
-                        {{ resending ? 'Sending...' : 'Resend Verification Email' }}
-                    </button>
+                    <hr />
+                    <div v-if="signedUpEmail" class="mt-3">
+                        <p>
+                            Signed up with <strong>{{ signedUpEmail }}</strong>
+                        </p>
+                        <p class="mb-3">
+                            Didn't receive the verification email?
+                        </p>
+                        <button
+                            @click="sendVerificationEmail"
+                            class="btn btn-secondary btn-block"
+                        >
+                            Resend Verification Email
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -113,116 +125,111 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import Swal from 'sweetalert2'
-import { signup, sendVerificationEmail } from '@/functions/api/auth'
+import { reactive, ref } from "vue";
+import { apiSignUp, apiSendVerificationEmail } from "@/functions/api/auth";
+import { LoadingModal, MessageModal, CloseModal } from "@/functions/swal";
+import { apiGoogleOAuthRedirect } from "@/functions/api/google-oauth";
 
-const loading = ref(false)
-const resending = ref(false)
-const signedUpEmail = ref('')
+const user = reactive({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+});
 
-const form = reactive({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-})
+const userError = reactive({
+    name: "",
+    email: "",
+    password: "",
+});
 
-const formError = reactive({
-    name: '',
-    email: '',
-    password: '',
-})
+const defaultUser = JSON.parse(JSON.stringify(user));
+const defaultUserError = JSON.parse(JSON.stringify(userError));
 
-function clearFormErrors() {
-    formError.name = ''
-    formError.email = ''
-    formError.password = ''
-}
-
-function resetForm() {
-    form.name = ''
-    form.email = ''
-    form.password = ''
-    form.password_confirmation = ''
-    clearFormErrors()
+function resetAllState() {
+    Object.assign(user, defaultUser);
+    Object.assign(userError, defaultUserError);
 }
 
 async function signUp() {
-    loading.value = true
-    signedUpEmail.value = ''
-    clearFormErrors()
-
+    resetSignedUpEmail();
     try {
-        const { data } = await signup({
-            name: form.name,
-            email: form.email,
-            password: form.password,
-            password_confirmation: form.password_confirmation,
-        })
-
-        // Keep email for resend; clear password fields
-        signedUpEmail.value = form.email
-        resetForm()
-
-        await Swal.fire({
-            icon: 'success',
-            title: 'Account created',
-            text:
-                data.message ||
-                'Check your inbox for a verification email before signing in.',
-        })
+        LoadingModal("Signing Up...");
+        await apiSignUp(user);
+        signedUpEmail.value = user.email;
+        resetAllState();
+        return MessageModal({
+            icon: "success",
+            title: "Success",
+            text: "Your account has been created successfully.",
+        });
     } catch (error) {
-        const status = error.response?.status
-        const payload = error.response?.data
-
-        if (status === 422 && payload?.errors) {
-            formError.name = payload.errors.name?.[0] || ''
-            formError.email = payload.errors.email?.[0] || ''
-            formError.password = payload.errors.password?.[0] || ''
-            return
+        const { response } = error;
+        if (!response) {
+            return MessageModal({
+                icon: "error",
+                title: "Error",
+                text: error.message,
+            });
         }
-
-        await Swal.fire({
-            icon: 'error',
-            title: 'Sign up failed',
-            text: payload?.message || error.message || 'Could not create account.',
-        })
-    } finally {
-        loading.value = false
+        const { status, data } = response;
+        if (status === 422) {
+            Object.keys(userError).forEach((key) => {
+                userError[key] = data.errors[key] ? data.errors[key][0] : "";
+            });
+            return CloseModal();
+        }
+        return MessageModal({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+        });
     }
 }
 
-async function resendVerificationEmail() {
-    if (!signedUpEmail.value) return
-
-    resending.value = true
+const signedUpEmail = ref("");
+async function sendVerificationEmail() {
     try {
-        const { data } = await sendVerificationEmail(signedUpEmail.value)
-        await Swal.fire({
-            icon: 'success',
-            title: 'Email sent',
-            text: data.message || 'Verification email has been resent.',
-        })
+        LoadingModal("Requesting verification email...");
+        const response = await apiSendVerificationEmail(signedUpEmail.value);
+        const { data } = response;
+        return MessageModal({
+            icon: "success",
+            title: "Success",
+            text: data.message,
+        });
     } catch (error) {
-        const payload = error.response?.data
-        await Swal.fire({
-            icon: 'error',
-            title: 'Could not resend',
-            text: payload?.message || error.message || 'Please try again later.',
-        })
-    } finally {
-        resending.value = false
+        const { response } = error;
+        if (!response) {
+            return MessageModal({
+                icon: "error",
+                title: "Error",
+                text: error.message,
+            });
+        }
+        const { data } = response;
+        return MessageModal({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+        });
     }
 }
+function resetSignedUpEmail() {
+    signedUpEmail.value = "";
+}
 
-onMounted(() => {
-    document.body.classList.remove('sidebar-mini', 'layout-fixed')
-    document.body.classList.add('hold-transition', 'register-page')
-})
-
-onUnmounted(() => {
-    document.body.classList.remove('hold-transition', 'register-page')
-    document.body.classList.add('sidebar-mini', 'layout-fixed')
-})
+const googleSignUp = async () => {
+    try {
+        LoadingModal();
+        const response = await apiGoogleOAuthRedirect();
+        window.location.href = response.data.redirect_url;
+    } catch (error) {
+        return MessageModal({
+            icon: "error",
+            title: "Error",
+            text: error.response?.data?.message || error.message,
+        });
+    }
+};
 </script>
