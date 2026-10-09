@@ -66,6 +66,7 @@ class GoogleOAuthController extends Controller
                 ['email' => $email],
                 [
                     'name' => $googleUser->getName() ?: $email,
+                    'level' => 'USER',
                     // password stays null for Google-only accounts (migration made it nullable)
                 ]
             );

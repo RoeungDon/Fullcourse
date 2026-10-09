@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Storage;
 
-#[Fillable(['name', 'email', 'password', 'profile_image'])]
+#[Fillable(['name', 'email', 'password', 'profile_image', 'level'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -65,5 +66,21 @@ class User extends Authenticatable
         return Attribute::make(
             get: fn($value) => $value ? Storage::disk('public')->url($value) : null,
         );
+    }
+
+    /**
+     * Scope a query to only include admin users.
+     */
+    public function scopeIsAdmin(Builder $query): void
+    {
+        $query->where('level', 'ADMIN');
+    }
+
+    /**
+     * Scope a query to only include regular users.
+     */
+    public function scopeIsUser(Builder $query): void
+    {
+        $query->where('level', 'USER');
     }
 }

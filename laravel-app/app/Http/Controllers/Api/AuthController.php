@@ -31,6 +31,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
+            'level' => 'USER',
         ]);
 
         $user->sendEmailVerificationNotification($request->callback_url);
