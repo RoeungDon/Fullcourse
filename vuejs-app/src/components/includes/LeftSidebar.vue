@@ -101,8 +101,8 @@
     </aside>
 </template>
 <script setup>
-import emptyImage from "@/assets/images/profile.jpeg";
-import logoImage from "@/assets/images/logo.png";
+import emptyImage from "@/assets/images/emptyImage.png";
+import logoImage from "@/assets/images/logoImage.webp";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();

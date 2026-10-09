@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Storage;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'profile_image'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens, MustVerifyEmail;
 
     /**
      * Get the attributes that should be cast.
@@ -33,19 +36,34 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    /**
-     * Send the email verification notification (custom callback_url support).
-     */
-    public function sendEmailVerificationNotification(?string $callbackUrl = null): void
+    public function sendEmailVerificationNotification($callback_url = null)
     {
-        $this->notify(new EmailVerificationNotification($callbackUrl));
+        $this->notify(new EmailVerificationNotification($callback_url));
     }
 
-    /**
-     * Send the password reset notification (custom callback_url support).
-     */
-    public function sendPasswordResetNotification($token, $callback_url = null): void
+    public function sendPasswordResetNotification($token, $callback_url = null)
     {
         $this->notify(new ResetPasswordNotification($token, $callback_url));
+    }
+
+    protected function passwordNull(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => empty($this->password),
+        );
+    }
+
+    protected function profileImage(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? Storage::disk('public')->url($value) : null,
+        );
+    }
+
+    protected function profileThumbnail(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? Storage::disk('public')->url($value) : null,
+        );
     }
 }

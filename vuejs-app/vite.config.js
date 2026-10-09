@@ -15,13 +15,16 @@ export default defineConfig({
     server: {
         host: "0.0.0.0",
         port: 5173,
+        strictPort: true,
+        // Allow access from host browser when Vite runs inside Docker
+        allowedHosts: true,
         hmr: {
+            host: "localhost",
             protocol: "ws",
-            port: 5173,
+            clientPort: 5173,
         },
         watch: {
             usePolling: true,
-            useFsEvents: true,
             interval: 1000,
         },
     },

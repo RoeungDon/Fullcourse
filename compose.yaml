@@ -19,9 +19,9 @@ services:
             DB_CONNECTION: mysql
             DB_HOST: mysql-service
             DB_PORT: "3306"
-            DB_DATABASE: my_database_system
-            DB_USERNAME: my_database_user
-            DB_PASSWORD: my_database_password
+            DB_DATABASE: chat_system
+            DB_USERNAME: chat_user
+            DB_PASSWORD: chat_password
         command: ["bash", "/usr/local/bin/entrypoint.development.sh"]
         restart: unless-stopped
 
@@ -46,9 +46,9 @@ services:
         image: mysql:8.0
         container_name: mysql-container
         environment:
-            MYSQL_DATABASE: my_database_system
-            MYSQL_USER: my_database_user
-            MYSQL_PASSWORD: my_database_password
+            MYSQL_DATABASE: chat_system
+            MYSQL_USER: chat_user
+            MYSQL_PASSWORD: chat_password
             MYSQL_ROOT_PASSWORD: root
             TZ: UTC
         ports:

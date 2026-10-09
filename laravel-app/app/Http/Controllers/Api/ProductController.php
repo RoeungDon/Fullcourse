@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -10,18 +10,20 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return Product::all();
+        return Product::query()->latest()->get();
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        return Product::create($data);
+        $product = Product::create($data);
+
+        return response()->json($product, 201);
     }
 
     public function show(Product $product)
@@ -32,18 +34,20 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'price' => 'sometimes|numeric|min:0',
-            'description' => 'nullable|string',
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['sometimes', 'required', 'numeric', 'min:0'],
         ]);
 
         $product->update($data);
+
         return $product;
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
+
         return response()->noContent();
     }
 }

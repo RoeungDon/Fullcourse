@@ -44,6 +44,6 @@
 </template>
 <script setup>
 import { useUserStore } from "@/stores/user";
-import emptyImage from "@/assets/images/profile.jpeg";
+import emptyImage from "@/assets/images/emptyImage.png";
 const userStore = useUserStore();
 </script>

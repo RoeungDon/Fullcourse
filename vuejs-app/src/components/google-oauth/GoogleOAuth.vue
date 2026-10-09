@@ -10,39 +10,60 @@ const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 
+function goSignIn() {
+    CloseModal();
+    router.replace({ name: "auth.signin" });
+}
+
 onMounted(async () => {
     try {
         LoadingModal("Processing Google authentication...");
+
         const error = route.query.error;
         if (error === "google_oauth_failed") {
+            const detail = route.query.detail
+                ? decodeURIComponent(String(route.query.detail))
+                : "Google authentication failed. Please try again.";
             return MessageModal(
                 {
                     icon: "error",
                     title: "Error",
-                    text: "Google authentication failed. Please try again.",
+                    text: detail,
                 },
-                () => {
-                    return router.replace({ name: "auth.signin" });
-                },
+                goSignIn,
             );
         }
 
         const token = route.query.token;
+        if (!token) {
+            return MessageModal(
+                {
+                    icon: "error",
+                    title: "Error",
+                    text: "Missing Google auth token. Please try again.",
+                },
+                goSignIn,
+            );
+        }
+
         const response = await apiGoogleOAuthExchangeToken(token);
-        userStore.setState(response.data.user);
-        userStore.setSanctumToken(response.data.token);
+        const { data } = response;
+        userStore.setState(data.user);
+        userStore.setSanctumToken(data.token);
         CloseModal();
         return router.replace({ name: "dashboard" });
     } catch (e) {
+        const msg =
+            e?.response?.data?.message ||
+            e?.message ||
+            "Google authentication failed. Please try again.";
         return MessageModal(
             {
                 icon: "error",
                 title: "Error",
-                text: "Google authentication failed. Please try again.",
+                text: msg,
             },
-            () => {
-                return router.replace({ name: "auth.signin" });
-            },
+            goSignIn,
         );
     }
 });
